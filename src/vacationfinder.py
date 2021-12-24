@@ -20,8 +20,13 @@ def load_ini():
     account = {
         'membership_number': ini_config['Account']['membership_number'],
         'last_name': ini_config['Account']['last_name'],
-        'user_agent': ini_config['Account']['user_agent'],
-        'headless': ini_config['Account'].getboolean('headless')
+        'user_agent': ini_config['Browser']['user_agent'],
+        'headless': ini_config['Browser'].getboolean('headless'),
+        'file_name': ini_config['File']['file_name'],
+        'number': ini_config['SMS']['number'],
+        'carrier': ini_config['SMS']['carrier'],
+        'email': ini_config['SMS']['email'],
+        'password': ini_config['SMS']['password']
     }
     return account
 
@@ -37,16 +42,16 @@ class VacationFinder:
     PAGE_NUMBER_COLUMN_XPATH = f'/html/body/table[3]/tbody/tr/td/form/div[3]/div/div/div[2]/table/tbody/tr[1]/td'
 
     def __init__(self):
-        self.account = load_ini()
+        self.config = load_ini()
         self.driver = self.get_driver()
 
     def get_driver(self):
         options = webdriver.FirefoxOptions()
-        if self.account.get("headless"):
+        if self.config.get("headless"):
             options.add_argument('--headless')
 
         profile = webdriver.FirefoxProfile()
-        user_agent = self.account.get("user_agent")
+        user_agent = self.config.get("user_agent")
         profile.set_preference("general.useragent.override", user_agent)
 
         driver = webdriver.Firefox(firefox_profile=profile, options=options, executable_path='geckodriver')
@@ -64,10 +69,10 @@ class VacationFinder:
             self._scroll_and_press(xpath=VacationFinder.EXPRESSWAYS_XPATH)
             print("...Pressed expressways button.")
             random_sleep()
-            self._send_keys(xpath=VacationFinder.MEMBERSHIP_NUMBER_XPATH, keys=self.account.get("membership_number"))
+            self._send_keys(xpath=VacationFinder.MEMBERSHIP_NUMBER_XPATH, keys=self.config.get("membership_number"))
             print("...Input membership number.")
             random_sleep()
-            self._send_keys(xpath=VacationFinder.LAST_NAME_XPATH, keys=self.account.get("last_name"))
+            self._send_keys(xpath=VacationFinder.LAST_NAME_XPATH, keys=self.config.get("last_name"))
             print("...Input last name.")
             random_sleep()
             self._scroll_and_press(xpath=VacationFinder.LOGIN_BUTTON_XPATH)
